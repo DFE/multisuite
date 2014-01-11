@@ -131,7 +131,7 @@ def main():
             help="the path that should be checked",)
 
     # autodiscover parser
-    parser_autodisc = subparser.add_parser("autodiscover",
+    parser_autodisc = subparser.add_parser("list",
             help="lists all of the current directories that are suites",)
 
     # finalise arg parsing
@@ -146,7 +146,7 @@ def main():
         exit(_summarize_results(*test(*args.suites)))
     elif args.cmd == "issuite":
         exit(0 if issuite(args.path) else 1)
-    elif args.cmd == "autodiscover":
+    elif args.cmd == "list":
         dirs = autodiscover()
         print os.linesep.join(dirs)
         exit(0 if dirs else 1)
