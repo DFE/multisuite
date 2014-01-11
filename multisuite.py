@@ -42,16 +42,16 @@ suite_name = re.compile(r"suite_.*")
 suite_file = "suite.py"
 req_file = "requirements.txt"
 
-def testall(*suites):
+def test(*suites):
     """ run tests for all suites given
 
     :param suites: the list of suites to be processed.
     :return: a list of test results that contain nosetests returncodes for each
              test
     """
-    return [test(s) for s in suites]
+    return [_testone(s) for s in suites]
 
-def test(suite):
+def _testone(suite):
     """ test a given suite
 
     :param suite: the corresponding suite directory. Correctness can be checked
@@ -93,7 +93,7 @@ def autotest(print_summary=True):
     :return: 0 if all suites ran without errors, otherwise 1
     """
     suites = autodiscover()
-    results = testall(*suites)
+    results = test(*suites)
     if print_summary:
         for r,s in zip(results, suites):
             print "suite '{}' {}".format(s, "fail:"+str(r) if r else "ok")
@@ -118,17 +118,11 @@ def main():
     parser_autotest.add_argument("-ns", "--no-summary", action="store_false",
             help="don't print a summary at the end")
 
-    # testall parser
-    parser_testall = subparser.add_parser("testall",
-            help="run tests for a list of suites",)
-    parser_testall.add_argument("-s", "--suites", nargs="*",
-            help="the suites that should be tested; should have module path format not directory format",)
-
     # test parser
     parser_test = subparser.add_parser("test",
-            help="test a single suite",)
-    parser_test.add_argument("-s", "--suite",
-            help="the suite that should be tested; should be have module path format not directory format",)
+            help="run tests for a list of suites",)
+    parser_test.add_argument("-s", "--suites", nargs="*",
+            help="the suites that should be tested; should have module path format not directory format",)
 
     # issuite parser
     parser_issuite = subparser.add_parser("issuite",
@@ -148,10 +142,8 @@ def main():
     if args.cmd == "autotest":
         #no_summary has store_false so is actually already inverted
         exit(autotest(print_summary=args.no_summary))
-    elif args.cmd == "testall":
-        exit(_summarize_results(*testall(*args.suites)))
     elif args.cmd == "test":
-        exit(test(args.suite))
+        exit(_summarize_results(*test(*args.suites)))
     elif args.cmd == "issuite":
         exit(0 if issuite(args.path) else 1)
     elif args.cmd == "autodiscover":
