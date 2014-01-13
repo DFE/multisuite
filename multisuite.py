@@ -42,40 +42,6 @@ suite_name = re.compile(r"suite_.*")
 suite_file = "suite.py"
 req_file = "requirements.txt"
 
-def test(*suites):
-    """ run tests for all suites given
-
-    :param suites: the list of suites to be processed.
-    :return: a list of test results that contain nosetests returncodes for each
-             test
-    """
-    return [_testone(s) for s in suites]
-
-def _testone(suite):
-    """ test a given suite
-
-    :param suite: the corresponding suite directory. Correctness can be checked
-                  with `issuite` first
-    :return: returncode from nosetests
-    """
-    svenv = "venv" + suite
-    calls = [
-            "virtualenv " + svenv,
-            ". {}/bin/activate".format(svenv),
-            "pip install -U nose",
-            "pip install -U -r {}/{}".format(suite, req_file),
-            "nosetests {}.suite".format(suite),
-    ]
-    return sub.call("; ".join(calls), shell=True)
-
-def autodiscover(path="."):
-    """ find subdirs that are legal suites
-
-    :param path: the directory that should be checked
-    :return: list of subdirs of path that are suites
-    """
-    return [d for d in os.listdir(path) if issuite(d)]
-
 def issuite(path):
     """ checks if a path is a suite
 
@@ -85,6 +51,23 @@ def issuite(path):
     return suite_name.match(op.basename(path)) and \
             op.isfile(op.join(path, suite_file)) and \
             op.isfile(op.join(path, req_file))
+
+def autodiscover(path="."):
+    """ find subdirs that are legal suites
+
+    :param path: the directory that should be checked
+    :return: list of subdirs of path that are suites
+    """
+    return [d for d in os.listdir(path) if issuite(d)]
+
+def test(*suites):
+    """ run tests for all suites given
+
+    :param suites: the list of suites to be processed.
+    :return: a list of test results that contain nosetests returncodes for each
+             test
+    """
+    return [_testone(s) for s in suites]
 
 def autotest(print_summary=True):
     """ find and run all legal suites in the current directory
@@ -106,6 +89,24 @@ def _summarize_results(*results):
     :return: 0 if all results are 0, otherwise 1
     """
     return 0 if sum(results)==0 else 1
+
+def _testone(suite):
+    """ test a given suite
+
+    :param suite: the corresponding suite directory. Correctness can be checked
+                  with `issuite` first
+    :return: returncode from nosetests
+    """
+    svenv = "venv" + suite
+    calls = [
+            "virtualenv " + svenv,
+            ". {}/bin/activate".format(svenv),
+            "pip install -U nose",
+            "pip install -U -r {}/{}".format(suite, req_file),
+            "nosetests {}.suite".format(suite),
+    ]
+    return sub.call("; ".join(calls), shell=True)
+
 
 def main():
     parser = argparse.ArgumentParser(description="test suites with different requirements together")
