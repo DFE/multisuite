@@ -41,6 +41,12 @@ import argparse
 suite_name = re.compile(r"suite_.*")
 suite_file = "suite.py"
 req_file = "requirements.txt"
+init_file = "__init__.py"
+
+default_test = """
+def test_hi():
+    # simple succeeding test
+    pass"""
 
 def issuite(path):
     """ checks if a path is a suite
@@ -81,6 +87,17 @@ def autotest(print_summary=True):
         for r,s in zip(results, suites):
             print "suite '{}' {}".format(s, "fail:"+str(r) if r else "ok")
     return _summarize_results(*results)
+
+def makesuite(*name):
+    for n in name:
+        calls = [
+                "mkdir -p {}".format(n),
+                "touch {}".format(op.join(n,req_file)),
+                "touch {}".format(op.join(n,init_file)),
+                "touch {}".format(op.join(n,suite_file)),
+                "echo \"{}\" >{}".format(default_test, op.join(n,suite_file)),
+        ]
+        return sub.call("; ".join(calls), shell=True)
 
 def _summarize_results(*results):
     """ take a list of returncodes and decide if success or not
@@ -135,6 +152,12 @@ def main():
     parser_autodisc = subparser.add_parser("list",
             help="lists all of the current directories that are suites",)
 
+    # make a suite parser
+    parser_make = subparser.add_parser("makesuite",
+            help="create a simple default suite",)
+    parser_make.add_argument("name", nargs="*",
+            help="the name of the suites to be created")
+
     # finalise arg parsing
     if len(sys.argv) <= 1:
         sys.argv.append("autotest")
@@ -151,6 +174,8 @@ def main():
         dirs = autodiscover()
         print os.linesep.join(dirs)
         exit(0 if dirs else 1)
+    elif args.cmd == "makesuite":
+        exit(makesuite(*args.name))
     else:
         print args
 

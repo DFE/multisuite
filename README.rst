@@ -45,6 +45,11 @@ file contains the requirements that this suite needs and the ``suite.py`` file
 contains the test case (or the reference to them). And it needs to contain an
 ``__init__.py`` file because that's how ``nosetests`` will recognize them.
 
+If you want to make sure, that you have a correct suite, you can create them
+with multisuite as well::
+
+    $ multisuite makesuite suite_1 suite_2
+
 You can check if your test suites can be found by multisuite::
 
     $ multisuite list
