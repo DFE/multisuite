@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
         name="multisuite",
-        version="0.1.6",
+        version="0.1.7",
         author="Project MONK Developers",
         author_email="project-monk@dreserach-fe.de",
         py_modules = [
