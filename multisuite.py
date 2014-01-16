@@ -66,14 +66,14 @@ def autodiscover(path="."):
     """
     return [d for d in os.listdir(path) if issuite(d)]
 
-def test(*suites):
+def test(*suite):
     """ run tests for all suites given
 
     :param suites: the list of suites to be processed.
     :return: a list of test results that contain nosetests returncodes for each
              test
     """
-    return [_testone(s) for s in suites]
+    return [_testone(s) for s in suite]
 
 def autotest(print_summary=True):
     """ find and run all legal suites in the current directory
@@ -89,6 +89,7 @@ def autotest(print_summary=True):
     return _summarize_results(*results)
 
 def makesuite(*name):
+    results = []
     for n in name:
         calls = [
                 "mkdir -p {}".format(n),
@@ -97,7 +98,8 @@ def makesuite(*name):
                 "touch {}".format(op.join(n,suite_file)),
                 "echo \"{}\" >{}".format(default_test, op.join(n,suite_file)),
         ]
-        return sub.call("; ".join(calls), shell=True)
+        results.append(sub.call("; ".join(calls), shell=True))
+    return _summarize_results(*results)
 
 def _summarize_results(*results):
     """ take a list of returncodes and decide if success or not
@@ -139,7 +141,7 @@ def main():
     # test parser
     parser_test = subparser.add_parser("test",
             help="run tests for a list of suites",)
-    parser_test.add_argument("-s", "--suites", nargs="*",
+    parser_test.add_argument("suite", nargs="*",
             help="the suites that should be tested; should have module path format not directory format",)
 
     # issuite parser
@@ -167,7 +169,7 @@ def main():
         #no_summary has store_false so is actually already inverted
         exit(autotest(print_summary=args.no_summary))
     elif args.cmd == "test":
-        exit(_summarize_results(*test(*args.suites)))
+        exit(_summarize_results(*test(*args.suite)))
     elif args.cmd == "issuite":
         exit(0 if issuite(args.path) else 1)
     elif args.cmd == "list":
