@@ -38,7 +38,8 @@ import subprocess as sub
 import argparse
 
 
-suite_name = re.compile(r"suite_.*")
+suite_pre = "suite_"
+suite_name = re.compile("{}.*".format(suite_pre))
 suite_file = "suite.py"
 req_file = "requirements.txt"
 init_file = "__init__.py"
@@ -91,12 +92,13 @@ def autotest(print_summary=True):
 def makesuite(*name):
     results = []
     for n in name:
+        long_name = n if suite_name.match(n) else suite_pre + n
         calls = [
-                "mkdir -p {}".format(n),
-                "touch {}".format(op.join(n,req_file)),
-                "touch {}".format(op.join(n,init_file)),
-                "touch {}".format(op.join(n,suite_file)),
-                "echo \"{}\" >{}".format(default_test, op.join(n,suite_file)),
+                "mkdir -p {}".format(long_name),
+                "touch {}".format(op.join(long_name,req_file)),
+                "touch {}".format(op.join(long_name,init_file)),
+                "touch {}".format(op.join(long_name,suite_file)),
+                "echo \"{}\" >{}".format(default_test, op.join(long_name,suite_file)),
         ]
         results.append(sub.call("; ".join(calls), shell=True))
     return _summarize_results(*results)
