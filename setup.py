@@ -1,4 +1,9 @@
+import sys
+
 from setuptools import setup
+
+if sys.argv[-1] == 'publish':
+    sys.argv = [sys.argv[0], 'sdist', 'upload']
 
 setup(
         name="multisuite",
