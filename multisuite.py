@@ -203,7 +203,8 @@ def main():
     elif args.cmd == "makesuite":
         exit(makesuite(*args.name))
     elif args.cmd == "shell":
-        exit(shell_cmd(_parse_suitename(args.suite), "python"))
+        suite = _parse_suitename(args.suite)
+        exit(shell_cmd(suite, "cd {}; python".format(suite)))
     else:
         print args
 
