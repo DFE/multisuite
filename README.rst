@@ -70,3 +70,12 @@ And you can simply run all tests together::
     ...
     suite suite_1 ok
     suite suite_2 ok
+
+Tipps
+-----
+
+ * You do not need to spell the prefix ``suite_`` explicitly. Both the
+   following commands are equal::
+
+       $ multisuite makesuite suite_bugfixes suite_unittests
+       $ multisuite makesuite bugfixes unittests

@@ -21,12 +21,12 @@ You can check if a directory is a recognisable suite like this::
 
 You can run a set of test suites like this::
 
-    $ multisuite test suite_1 suite_2
+    $ multisuite test suite_1 suite_2 # suite_ prefix not required to write
 
 And if you are in the parent directory of some suites you can run all of them
 like this::
 
-    $ multisuite autotest
+    $ multisuite # or explicitely with "multisuite autotest"
 
 """
 
@@ -103,6 +103,18 @@ def makesuite(*name):
         results.append(sub.call("; ".join(calls), shell=True))
     return _summarize_results(*results)
 
+def shell_cmd(suite, cmd):
+    svenv = "venv" + suite
+    calls = [
+            "virtualenv " + svenv,
+            ". {}/bin/activate".format(svenv),
+            "pip install -U nose",
+            "pip install -U -r {}/{}".format(suite, req_file),
+            cmd,
+    ]
+    return sub.call("; ".join(calls), shell=True)
+
+
 def _summarize_results(*results):
     """ take a list of returncodes and decide if success or not
 
@@ -118,19 +130,23 @@ def _testone(suite):
                   with `issuite` first
     :return: returncode from nosetests
     """
-    svenv = "venv" + suite
-    calls = [
-            "virtualenv " + svenv,
-            ". {}/bin/activate".format(svenv),
-            "pip install -U nose",
-            "pip install -U -r {}/{}".format(suite, req_file),
-            "nosetests {}.suite".format(suite),
-    ]
-    return sub.call("; ".join(calls), shell=True)
+    return shell_cmd(suite, "nosetests {}.suite".format(suite))
+
+def _parse_suitename(suite):
+    """ Make sure a suite name is a suite name
+
+    by adding the prefix "suite_" if it is not set by the user.
+
+    :param suite: the name of a suite, with or without the "suite_" prefix
+
+    :return: the name of the suite, with the "suite_" prefix.
+    """
+    return suite if suite_name.match(suite) else "suite_" + suite
 
 
 def main():
-    parser = argparse.ArgumentParser(description="test suites with different requirements together")
+    parser = argparse.ArgumentParser(
+            description="test suites with different requirements together")
 
     subparser = parser.add_subparsers(dest="cmd")
 
@@ -162,6 +178,12 @@ def main():
     parser_make.add_argument("name", nargs="*",
             help="the name of the suites to be created")
 
+    # shell parser
+    parser_shell = subparser.add_parser("shell",
+            help="activate a python shell in a suite's environment, for testing and debugging")
+    parser_shell.add_argument("suite",
+            help="the suite whose environment should be loaded for the shell")
+
     # finalise arg parsing
     if len(sys.argv) <= 1:
         sys.argv.append("autotest")
@@ -171,7 +193,7 @@ def main():
         #no_summary has store_false so is actually already inverted
         exit(autotest(print_summary=args.no_summary))
     elif args.cmd == "test":
-        exit(_summarize_results(*test(*args.suite)))
+        exit(_summarize_results(*test(map(_parse_suitename, *args.suite))))
     elif args.cmd == "issuite":
         exit(0 if issuite(args.path) else 1)
     elif args.cmd == "list":
@@ -180,6 +202,8 @@ def main():
         exit(0 if dirs else 1)
     elif args.cmd == "makesuite":
         exit(makesuite(*args.name))
+    elif args.cmd == "shell":
+        exit(shell_cmd(_parse_suitename(args.suite), "python"))
     else:
         print args
 
