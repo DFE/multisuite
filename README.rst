@@ -79,3 +79,11 @@ Tipps
 
        $ multisuite makesuite suite_bugfixes suite_unittests
        $ multisuite makesuite bugfixes unittests
+
+ * When developing on new test cases the ``shell`` command might come in handy,
+   it takes the user to the folder of a test suite, initializes the virtualenv
+   of that suite, and then starts a python shell. Therefore the environment in
+   the python shell is the same as for the test cases of that suite. For more
+   details::
+
+       $ multisuite shell -h
