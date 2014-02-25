@@ -187,7 +187,7 @@ def main():
     parser_shell.add_argument("-c", dest="code", nargs="*", default=[],
             help="commands that should be executed before starting the shell")
     parser_shell.add_argument("-d", "--debug", action="store_true", default=False,
-            help="commands that should be executed before starting the shell")
+            help="start in debug mode, which means all logging messages are printed to stdout")
 
     # finalise arg parsing
     if len(sys.argv) <= 1:
