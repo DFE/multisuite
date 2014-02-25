@@ -43,6 +43,7 @@ suite_name = re.compile("{}.*".format(suite_pre))
 suite_file = "suite.py"
 req_file = "requirements.txt"
 init_file = "__init__.py"
+activate_debug = ["import logging", "logging.basicConfig(level=logging.DEBUG)"]
 
 default_test = """
 def test_hi():
@@ -182,7 +183,11 @@ def main():
     parser_shell = subparser.add_parser("shell",
             help="activate a python shell in a suite's environment, for testing and debugging")
     parser_shell.add_argument("suite",
-            help="the suite whose environment should be loaded for the shell")
+            help="the suite whose environment should be loaded for the shell. WRITE THIS BEFORE THE \"-c\" STRINGS!")
+    parser_shell.add_argument("-c", dest="code", nargs="*",
+            help="commands that should be executed before starting the shell")
+    parser_shell.add_argument("-d", "--debug", action="store_true", default=False,
+            help="commands that should be executed before starting the shell")
 
     # finalise arg parsing
     if len(sys.argv) <= 1:
@@ -204,7 +209,9 @@ def main():
         exit(makesuite(*args.name))
     elif args.cmd == "shell":
         suite = _parse_suitename(args.suite)
-        exit(shell_cmd(suite, "cd {}; python".format(suite)))
+        code = (activate_debug if args.debug else []) + args.code
+        exec_txt = "cd {}; python -i -c \"{}\"".format(suite, "; ".join(code))
+        exit(shell_cmd(suite, exec_txt))
     else:
         print args
 
