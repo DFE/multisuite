@@ -184,7 +184,7 @@ def main():
             help="activate a python shell in a suite's environment, for testing and debugging")
     parser_shell.add_argument("suite",
             help="the suite whose environment should be loaded for the shell. WRITE THIS BEFORE THE \"-c\" STRINGS!")
-    parser_shell.add_argument("-c", dest="code", nargs="*",
+    parser_shell.add_argument("-c", dest="code", nargs="*", default=[],
             help="commands that should be executed before starting the shell")
     parser_shell.add_argument("-d", "--debug", action="store_true", default=False,
             help="commands that should be executed before starting the shell")
