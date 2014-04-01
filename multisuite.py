@@ -29,6 +29,7 @@ like this::
     $ multisuite # or explicitely with "multisuite autotest"
 
 """
+from __future__ import print_function
 
 import re
 import os
@@ -36,6 +37,7 @@ import sys
 import os.path as op
 import subprocess as sub
 import argparse
+import logging
 
 
 suite_pre = "suite_"
@@ -86,8 +88,7 @@ def autotest(print_summary=True):
     suites = autodiscover()
     results = test(*suites)
     if print_summary:
-        for r,s in zip(results, suites):
-            print "suite '{}' {}".format(s, "fail:"+str(r) if r else "ok")
+        _print_results(results, suites)
     return _summarize_results(*results)
 
 def makesuite(*name):
@@ -101,7 +102,12 @@ def makesuite(*name):
                 "touch {}".format(op.join(long_name,suite_file)),
                 "echo \"{}\" >{}".format(default_test, op.join(long_name,suite_file)),
         ]
-        results.append(sub.call("; ".join(calls), shell=True))
+        try:
+            out = sub.check_output("; ".join(calls), shell=True)
+            print(out,file=sys.stderr)
+            results.append(0)
+        except sub.CalledProcessError:
+            results.append(1)
     return _summarize_results(*results)
 
 def shell_cmd(suite, cmd):
@@ -113,8 +119,12 @@ def shell_cmd(suite, cmd):
             "pip install -U -r {}/{}".format(suite, req_file),
             cmd,
     ]
-    return sub.call("; ".join(calls), shell=True)
-
+    try:
+        out = sub.check_output("; ".join(calls), shell=True)
+        print(out,file=sys.stderr)
+        return 0
+    except sub.CalledProcessError:
+        return 1
 
 def _summarize_results(*results):
     """ take a list of returncodes and decide if success or not
@@ -131,7 +141,7 @@ def _testone(suite):
                   with `issuite` first
     :return: returncode from nosetests
     """
-    return shell_cmd(suite, "nosetests {}.suite".format(suite))
+    return shell_cmd(suite, "nosetests {}.suite 2>&1".format(suite))
 
 def _parse_suitename(suite):
     """ Make sure a suite name is a suite name
@@ -143,6 +153,16 @@ def _parse_suitename(suite):
     :return: the name of the suite, with the "suite_" prefix.
     """
     return suite if suite_name.match(suite) else "suite_" + suite
+
+def _print_results(results, suites):
+    """ format and print the results for processing
+    """
+    print("TAP version 13")
+    print("1.."+str(len(suites)))
+    for i,s in enumerate(suites):
+        r = results[i]
+        print("{} {} - suite '{}'".format(
+                "not ok" if r else "ok", i+1, s))
 
 
 def main():
@@ -203,7 +223,7 @@ def main():
         exit(0 if issuite(args.path) else 1)
     elif args.cmd == "list":
         dirs = autodiscover()
-        print os.linesep.join(dirs)
+        print(os.linesep.join(dirs))
         exit(0 if dirs else 1)
     elif args.cmd == "makesuite":
         exit(makesuite(*args.name))
@@ -213,7 +233,7 @@ def main():
         exec_txt = "cd {}; python -i -c \"{}\"".format(suite, "; ".join(code))
         exit(shell_cmd(suite, exec_txt))
     else:
-        print args
+        print(args)
 
 if __name__ == "__main__":
     main()
