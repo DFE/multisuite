@@ -103,7 +103,7 @@ def makesuite(*name):
                 "echo \"{}\" >{}".format(default_test, op.join(long_name,suite_file)),
         ]
         try:
-            out = sub.check_output("; ".join(calls), shell=True)
+            out = sub.check_output("; ".join(calls),stderr=sub.STDOUT, shell=True)
             print(out,file=sys.stderr)
             results.append(0)
         except sub.CalledProcessError:
@@ -124,7 +124,7 @@ def shell_cmd(suite, cmd):
         print(out,file=sys.stderr)
         return 0
     except sub.CalledProcessError as e:
-        print(e.output,stderr=sub.STDOUT, file=sys.stderr)
+        print(e.output, file=sys.stderr)
         return e.returncode
 
 def _summarize_results(*results):
