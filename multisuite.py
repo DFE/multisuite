@@ -124,7 +124,7 @@ def shell_cmd(suite, cmd):
         print(out,file=sys.stderr)
         return 0
     except sub.CalledProcessError as e:
-        print(e.output,file=sys.stderr)
+        print(e.output,stderr=sub.STDOUT, file=sys.stderr)
         return e.returncode
 
 def _summarize_results(*results):
@@ -142,7 +142,7 @@ def _testone(suite):
                   with `issuite` first
     :return: returncode from nosetests
     """
-    return shell_cmd(suite, "nosetests {}.suite 2>&1".format(suite))
+    return shell_cmd(suite, "nosetests {}.suite".format(suite))
 
 def _parse_suitename(suite):
     """ Make sure a suite name is a suite name
