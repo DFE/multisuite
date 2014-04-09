@@ -123,8 +123,9 @@ def shell_cmd(suite, cmd):
         out = sub.check_output("; ".join(calls), shell=True)
         print(out,file=sys.stderr)
         return 0
-    except sub.CalledProcessError:
-        return 1
+    except sub.CalledProcessError as e:
+        print(e.output,file=sys.stderr)
+        return e.returncode
 
 def _summarize_results(*results):
     """ take a list of returncodes and decide if success or not
