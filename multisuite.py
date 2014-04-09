@@ -70,14 +70,17 @@ def autodiscover(path="."):
     """
     return [d for d in os.listdir(path) if issuite(d)]
 
-def test(*suite):
+def test(print_summary=True, *suite):
     """ run tests for all suites given
 
     :param suites: the list of suites to be processed.
     :return: a list of test results that contain nosetests returncodes for each
              test
     """
-    return [_testone(s) for s in suite]
+    results = [_testone(s) for s in suite]
+    if print_summary:
+        _print_results(results, suite)
+    return results
 
 def autotest(print_summary=True):
     """ find and run all legal suites in the current directory
@@ -86,10 +89,7 @@ def autotest(print_summary=True):
     :return: 0 if all suites ran without errors, otherwise 1
     """
     suites = autodiscover()
-    results = test(*suites)
-    if print_summary:
-        _print_results(results, suites)
-    return _summarize_results(*results)
+    return _summarize_results(*test(print_summary, *suites))
 
 def makesuite(*name):
     results = []
@@ -164,6 +164,7 @@ def _print_results(results, suites):
         r = results[i]
         print("{} {} - suite '{}'".format(
                 "not ok" if r else "ok", i+1, s))
+    return results
 
 
 def main():
@@ -219,7 +220,7 @@ def main():
         #no_summary has store_false so is actually already inverted
         exit(autotest(print_summary=args.no_summary))
     elif args.cmd == "test":
-        exit(_summarize_results(*test(map(_parse_suitename, *args.suite))))
+        exit(_summarize_results(*test(True, *map(_parse_suitename, args.suite))))
     elif args.cmd == "issuite":
         exit(0 if issuite(args.path) else 1)
     elif args.cmd == "list":
