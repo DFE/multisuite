@@ -153,7 +153,7 @@ def _parse_suitename(suite):
 
     :return: the name of the suite, with the "suite_" prefix.
     """
-    return suite if suite_name.match(suite) else "suite_" + suite
+    return suite if suite_name.match(suite) else suite_pre + suite
 
 def _print_results(results, suites):
     """ format and print the results for processing
