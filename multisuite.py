@@ -119,13 +119,7 @@ def shell_cmd(suite, cmd):
             "pip install -U -r {}/{}".format(suite, req_file),
             cmd,
     ]
-    try:
-        out = sub.check_output("; ".join(calls), shell=True)
-        print(out,file=sys.stderr)
-        return 0
-    except sub.CalledProcessError as e:
-        print(e.output, file=sys.stderr)
-        return e.returncode
+    return sub.call("; ".join(calls), shell=True)
 
 def _summarize_results(*results):
     """ take a list of returncodes and decide if success or not
