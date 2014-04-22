@@ -7,7 +7,7 @@ if sys.argv[-1] == 'publish':
 
 setup(
         name="multisuite",
-        version="0.2.3",
+        version="0.2.4",
         author="Project MONK Developers",
         author_email="project-monk@dreserach-fe.de",
         py_modules = [
