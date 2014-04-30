@@ -119,7 +119,9 @@ def shell_cmd(suite, cmd):
             "pip install -U -r {}/{}".format(suite, req_file),
             cmd,
     ]
-    return sub.Popen("; ".join(calls),shell=True).communicate()
+    p = sub.Popen("; ".join(calls),shell=True)
+    p.communicate()
+    return p.returncode
 
 def _summarize_results(*results):
     """ take a list of returncodes and decide if success or not
