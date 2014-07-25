@@ -138,7 +138,7 @@ def _testone(suite):
                   with `issuite` first
     :return: returncode from nosetests
     """
-    return shell_cmd(suite, "nosetests {}.suite".format(suite))
+    return shell_cmd(suite, "nosetests -v {}.suite".format(suite))
 
 def _parse_suitename(suite):
     """ Make sure a suite name is a suite name
